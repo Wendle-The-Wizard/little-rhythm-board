@@ -33,7 +33,6 @@ h1 { font-size: 1.4rem; margin: 0 0 2px; }
   box-shadow: 0 1px 0 rgba(0,0,0,0.35), 0 0 24px var(--c);
 }
 .pad:focus-visible, .cell:focus-visible, .play:focus-visible { outline: 3px solid #fff; }
-/* 8 steps across; cells flow row by row: rows 1-6 match pads 1-6 */
 .grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -68,6 +67,8 @@ h1 { font-size: 1.4rem; margin: 0 0 2px; }
   font-weight: bold;
   cursor: pointer;
 }
+.play.alt { background: #ffa94d; }
+.play.alt.on { background: #ffe066; box-shadow: 0 0 14px #ffe066; }
 .speed { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
 .speed input { width: 130px; accent-color: #b197fc; }
 #bpmout { min-width: 64px; text-align: left; }
