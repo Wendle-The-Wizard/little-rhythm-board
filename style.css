@@ -13,10 +13,7 @@ body {
 main { padding: 16px; width: 100%; max-width: 640px; }
 h1 { font-size: 1.6rem; margin: 0 0 4px; }
 .hint { margin: 0 0 20px; opacity: 0.7; }
-.board {
-  display: flex;
-  gap: 10px;
-}
+.board { display: flex; gap: 10px; }
 .pad {
   flex: 1;
   aspect-ratio: 1 / 1.4;
@@ -35,4 +32,35 @@ h1 { font-size: 1.6rem; margin: 0 0 4px; }
   opacity: 1;
   box-shadow: 0 1px 0 rgba(0,0,0,0.35), 0 0 24px var(--c);
 }
-.pad:focus-visible { outline: 3px solid #fff; }
+.pad:focus-visible, .cell:focus-visible, .play:focus-visible { outline: 3px solid #fff; }
+/* sequencer: 6 rows (one per pad) of 8 steps */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  margin-top: 22px;
+}
+.cell {
+  aspect-ratio: 1;
+  border: 2px solid var(--c);
+  border-radius: 8px;
+  background: transparent;
+  opacity: 0.45;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cell.on { background: var(--c); opacity: 0.9; }
+.cell.now { opacity: 1; box-shadow: 0 0 12px #fff; }
+.play {
+  margin-top: 18px;
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 999px;
+  background: #b197fc;
+  color: #1d1535;
+  font-weight: bold;
+  cursor: pointer;
+}
