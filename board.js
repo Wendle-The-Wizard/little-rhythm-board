@@ -1,4 +1,4 @@
-// Step 2: each pad now plays its own soft tap sound.
+// Step 2: each pad plays its own soft tap sound.
 (function () {
   var colors = ['#ff6b8b', '#ffa94d', '#ffe066', '#69db7c', '#4dabf7', '#b197fc'];
   // one note per pad (a little pentatonic scale, so it always sounds nice)
