@@ -1,4 +1,4 @@
-// Step 4: the beat speed can be adjusted with a slider.
+// Step 5: a scrape-like rhythm pattern (filtered noise swishes) to play along.
 (function () {
   var colors = ['#ff6b8b', '#ffa94d', '#ffe066', '#69db7c', '#4dabf7', '#b197fc'];
   var freqs = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
@@ -7,15 +7,27 @@
   var gridEl = document.getElementById('grid');
   var dotsEl = document.getElementById('dots');
   var playBtn = document.getElementById('play');
+  var scrapeBtn = document.getElementById('scrape');
   var speedEl = document.getElementById('speed');
   var bpmOut = document.getElementById('bpmout');
   var ctx = null;
   var bpm = 110;
+  var scrapeOn = false;
+  var noiseBuf = null;
 
-  // slider changes the tempo right away, even while looping
+  // scrape pattern per step: 0 = silence, 1 = short scrape, 2 = long drag, 3 = quick scritch
+  var scrapePat = [2, 0, 1, 1, 3, 0, 1, 3];
+
   speedEl.addEventListener('input', function () {
     bpm = Number(speedEl.value);
     bpmOut.textContent = bpm + ' BPM';
+  });
+
+  scrapeBtn.addEventListener('click', function () {
+    scrapeOn = !scrapeOn;
+    scrapeBtn.classList.toggle('on', scrapeOn);
+    scrapeBtn.setAttribute('aria-pressed', String(scrapeOn));
+    scrapeBtn.textContent = 'Scrape pattern: ' + (scrapeOn ? 'on' : 'off');
   });
 
   function getCtx() {
@@ -46,6 +58,34 @@
     osc.stop(t + 0.22);
   }
 
+  // scrape = white noise through a bandpass filter that sweeps up, like a pebble dragged on wood
+  function scrape(kind, when) {
+    var c = getCtx();
+    if (!c || !kind) return;
+    if (!noiseBuf) {
+      noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for (var k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1;
+    }
+    var dur = kind === 2 ? 0.34 : kind === 3 ? 0.07 : 0.16;
+    var src = c.createBufferSource();
+    src.buffer = noiseBuf;
+    var filt = c.createBiquadFilter();
+    filt.type = 'bandpass';
+    filt.Q.value = 3;
+    filt.frequency.setValueAtTime(kind === 3 ? 3500 : 1200, when);
+    filt.frequency.exponentialRampToValueAtTime(kind === 3 ? 5500 : 3200, when + dur);
+    var g = c.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(0.18, when + dur * 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    src.connect(filt);
+    filt.connect(g);
+    g.connect(c.destination);
+    src.start(when);
+    src.stop(when + dur + 0.02);
+  }
+
   var pads = [];
   function flash(i) {
     var pad = pads[i];
@@ -60,7 +100,7 @@
     pad.type = 'button';
     pad.style.setProperty('--c', color);
     pad.setAttribute('aria-label', 'Pad ' + (i + 1));
-    pad.textContent = i + 1; // numbers link pads to grid rows
+    pad.textContent = i + 1;
     pad.addEventListener('pointerdown', function (e) { e.preventDefault(); hit(i); });
     pad.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) hit(i); }
@@ -69,8 +109,6 @@
     pads.push(pad);
   });
 
-  // Grid is laid out with columns as pads, steps as rows going down? No: steps
-  // run across, so each step column holds 6 small cells. Compact so it fits.
   var pattern = [], cells = [];
   for (var r = 0; r < colors.length; r++) { pattern.push([]); cells.push([]); }
   for (var r2 = 0; r2 < colors.length; r2++) {
@@ -93,7 +131,6 @@
       })(r2, s);
     }
   }
-  // playhead dots under the grid, one per step
   var dots = [];
   for (var d = 0; d < STEPS; d++) {
     var dot = document.createElement('span');
@@ -132,8 +169,9 @@
           })(r);
         }
       }
+      if (scrapeOn) scrape(scrapePat[s], when);
       setTimeout(function () { if (playing) showStep(s); }, delay);
-      nextTime += 60 / bpm / 2; // eighth notes, uses the current speed
+      nextTime += 60 / bpm / 2;
       step = (step + 1) % STEPS;
     }
   }
