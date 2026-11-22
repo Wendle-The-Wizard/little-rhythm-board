@@ -10,7 +10,11 @@
 <p class="hint">Tap a pad to hear it, or draw a beat below!</p>
 <div id="board" class="board" role="group" aria-label="Rhythm pads"></div>
 <div id="grid" class="grid" role="group" aria-label="Beat sequencer"></div>
+<div id="dots" class="dots" aria-hidden="true"></div>
+<div class="controls">
 <button id="play" class="play" type="button">Play beat</button>
+<label class="speed" for="speed">Speed <input id="speed" type="range" min="60" max="200" step="1" value="110"> <span id="bpmout">110 BPM</span></label>
+</div>
 </main>
 <script src="board.js"></script>
 </body>
